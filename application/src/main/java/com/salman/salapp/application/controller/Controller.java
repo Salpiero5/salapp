@@ -4,17 +4,15 @@ import com.salman.salapp.application.service.CustomerService;
 import com.salman.salapp.library.entity.Customer;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping(value = "/sal-app")
+@RequestMapping(value = "/customers")
 public class Controller {
 
-    CustomerService customerService;
+    private CustomerService customerService;
 
     public Controller(CustomerService customerService) {
         this.customerService = customerService;
@@ -22,7 +20,16 @@ public class Controller {
 
     //@CrossOrigin(origins = "http://localhost:4200", allowedHeaders = "*")
     @GetMapping(value = "/customers")
-    public List<Customer> getCustomers() {
-        return customerService.getCustomer();
+    public ResponseEntity<List<Customer>> getCustomers() {
+
+        List<Customer> customers = customerService.getCustomer();
+        return new ResponseEntity<>(customers, HttpStatus.OK);
+    }
+
+    @PostMapping(value = "/insert-customer")
+    public ResponseEntity insertCustomer(@RequestBody Customer request) {
+
+        customerService.insertCustomer(request);
+        return new ResponseEntity(HttpStatus.CREATED);
     }
 }
