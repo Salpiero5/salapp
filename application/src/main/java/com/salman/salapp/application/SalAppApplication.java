@@ -14,13 +14,13 @@ import java.util.Arrays;
 public class SalAppApplication {
 
     public static void main(String[] args) {
-//        ApplicationContext context =
+        ApplicationContext context =
                 SpringApplication.run(SalAppApplication.class, args);
 
         /**
          * For printing one bean class
          */
-//        System.out.println(context.getBean("myBean").toString());
+        System.out.println(context.getBean("securityConfig").toString());
 //        System.out.println(context.getBean("myInstance1").toString());
 
         /**

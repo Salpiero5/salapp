@@ -2,7 +2,7 @@ package com.salman.salapp.application.service;
 
 import com.salman.salapp.application.repository.CustomerRepository;
 import com.salman.salapp.library.entity.Customer;
-import org.springframework.context.annotation.Scope;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -32,7 +32,15 @@ public class CustomerService {
         customerRepository.save(customer);
     }
 
-    /*public void printDigit() {
-        System.out.println(digit);
-    }*/
+    public Optional<List<Customer>> getCustomerByFirstNameIgnoreCase(String name) {
+        return customerRepository.findAllByFirstNameLikeIgnoreCase(name);
+    }
+
+    public Optional<List<Customer>> getCustomersSorted() {
+        return customerRepository.findAllByOrderByFirstNameAsc();
+    }
+
+    public Optional<List<Customer>> getCustomersByPhoneWithPattern(String phone) {
+        return customerRepository.findCustomersByPhoneLikePattern(phone);
+    }
 }
