@@ -19,7 +19,7 @@ public class Controller {
     }
 
     //@CrossOrigin(origins = "http://localhost:4200", allowedHeaders = "*")
-    @GetMapping(value = "/customers")
+    @GetMapping()
     public ResponseEntity<List<Customer>> getCustomers() {
 
         List<Customer> customers = customerService.getCustomer();
