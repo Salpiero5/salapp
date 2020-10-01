@@ -3,12 +3,34 @@ package com.salman.salapp.application;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.ComponentScan;
 
-@SpringBootApplication(scanBasePackages = "com.salman.salapp")
+import java.util.Arrays;
+
+@ComponentScan({"com.salman.salapp.application", "com.salman.salapp.library"})
 @EntityScan("com.salman.salapp.library.entity")
+@SpringBootApplication
 public class SalAppApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(SalAppApplication.class, args);
+//        ApplicationContext context =
+                SpringApplication.run(SalAppApplication.class, args);
+
+        /**
+         * For printing one bean class
+         */
+//        System.out.println(context.getBean("myBean").toString());
+//        System.out.println(context.getBean("myInstance1").toString());
+
+        /**
+         * For printing all beans
+         */
+//        String[] beans = context.getBeanDefinitionNames();
+//        Arrays.sort(beans);
+
+        /*for (String s : beans) {
+            System.out.println(s);
+        }*/
     }
 }
