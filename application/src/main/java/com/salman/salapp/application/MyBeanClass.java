@@ -8,7 +8,7 @@ import org.springframework.context.annotation.*;
 @NoArgsConstructor
 public class MyBeanClass {
 
-    public int a = 1;
+    private int a = 1;
 
     private MyBeanClass(int a) {
         this.a = a;

@@ -2,7 +2,6 @@ package com.salman.salapp.application.service;
 
 import com.salman.salapp.application.repository.CustomerRepository;
 import com.salman.salapp.library.entity.Customer;
-import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

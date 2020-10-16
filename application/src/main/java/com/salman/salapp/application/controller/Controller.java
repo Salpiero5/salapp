@@ -9,7 +9,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 
-import javax.annotation.security.RolesAllowed;
 import java.util.List;
 import java.util.Optional;
 
@@ -39,7 +38,8 @@ public class Controller {
         return welcomeMsg + " + random string -> " + randomString;
     }
 
-    @CrossOrigin(origins = "http://localhost:4200", allowedHeaders = "*")
+//    @CrossOrigin(origins = "http://localhost:4200", allowedHeaders = "*")
+//    @Secured("ROLE_USER")
     @GetMapping()
     public ResponseEntity<List<Customer>> getCustomers() {
 
@@ -47,7 +47,7 @@ public class Controller {
         return new ResponseEntity<>(customers, HttpStatus.OK);
     }
 
-    @CrossOrigin(origins = "http://localhost:4200", allowedHeaders = "*")
+    @Secured("ROLE_ADMIN")
     @GetMapping(value = "/id/{id}")
     public ResponseEntity<Optional<Customer>> getCustomerById(@PathVariable(value = "id") long id) {
 
@@ -59,6 +59,7 @@ public class Controller {
         }
     }
 
+    @Secured("ROLE_ADMIN")
     @PostMapping(value = "/insert-customer")
     public ResponseEntity insertCustomer(@RequestBody Customer request) {
 
@@ -66,6 +67,7 @@ public class Controller {
         return new ResponseEntity(HttpStatus.CREATED);
     }
 
+    @Secured("ROLE_ADMIN")
     @GetMapping(value = "/first-name/{name}")
     public ResponseEntity<Optional<List<Customer>>> getCustomerByFirstNameIgnoreCase(@PathVariable(value = "name") String name) {
 
@@ -77,6 +79,7 @@ public class Controller {
         }
     }
 
+    @Secured("ROLE_USER")
     @GetMapping(value = "/sorted-by-name")
     public ResponseEntity<Optional<List<Customer>>> getCustomersSorted() {
 
@@ -88,6 +91,7 @@ public class Controller {
         }
     }
 
+    @Secured("ROLE_ADMIN")
     @GetMapping(value = "/phone-by-pattern/{phone}")
     public ResponseEntity<Optional<List<Customer>>> getCustomersByPhoneWithPattern(@PathVariable(value = "phone") String phone) {
 
