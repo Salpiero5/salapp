@@ -2,6 +2,7 @@ package com.salman.salapp.application.service;
 
 import com.salman.salapp.application.repository.CustomerRepository;
 import com.salman.salapp.library.entity.Customer;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -13,14 +14,14 @@ public class CustomerService {
 
     //public int digit = 0;
 
-    private CustomerRepository customerRepository;
+    private final CustomerRepository customerRepository;
 
     public CustomerService(CustomerRepository customerRepository) {
         this.customerRepository = customerRepository;
     }
 
-    public List<Customer> getCustomer() {
-        return (List<Customer>) customerRepository.findAll();
+    public List<Customer> getCustomer(Specification<Customer> spec) {
+        return customerRepository.findAll(spec);
     }
 
     public Optional<Customer> getCustomerById(long id) {

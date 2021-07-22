@@ -1,22 +1,44 @@
 package com.salman.salapp.application.controller;
 
 import com.salman.salapp.application.service.CustomerService;
+import com.salman.salapp.application.service.FileStorageService;
 import com.salman.salapp.library.entity.Customer;
 import com.salman.salapp.library.exceptions.NullIdException;
+import lombok.extern.slf4j.Slf4j;
+import net.kaczmarzyk.spring.data.jpa.domain.EqualIgnoreCase;
+import net.kaczmarzyk.spring.data.jpa.domain.LikeIgnoreCase;
+import net.kaczmarzyk.spring.data.jpa.web.annotation.And;
+import net.kaczmarzyk.spring.data.jpa.web.annotation.Spec;
+import org.apache.tomcat.util.http.fileupload.IOUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import javax.servlet.http.HttpServletResponse;
+import javax.transaction.Transactional;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 import java.util.Optional;
 
+@Slf4j
 @RestController
 @RequestMapping(value = "/customers")
 public class Controller {
 
-    private CustomerService customerService;
+    private final CustomerService customerService;
+
+    @Autowired
+    private FileStorageService fileStorageService;
 
     public Controller(CustomerService customerService) {
         this.customerService = customerService;
@@ -28,6 +50,48 @@ public class Controller {
     @Value("${some.string}")
     private String randomString;
 
+    @Value("${download.path}")
+    private String dlPath;
+
+
+    /**
+     * This is for downloading a resource from resource folder with rest api
+     *
+     * @param fileName name of the downloaded file
+     * @param response raw type it will be downloaded to the client hard
+     * @author Salman Peirovi
+     * @since 2021
+     */
+    @RequestMapping(value = "/download/{file_name}", method = RequestMethod.GET)
+    public void downloadFile(@PathVariable("file_name") String fileName,
+                             HttpServletResponse response) {
+
+        response.setContentType("application/octet-stream");
+        InputStream inputStream;
+        Resource resource = new ClassPathResource(dlPath);
+        try {
+            // get your file as InputStream
+            inputStream = resource.getInputStream();
+            // copy it to response's OutputStream
+            IOUtils.copy(inputStream, response.getOutputStream());
+            response.flushBuffer();
+        } catch (IOException ex) {
+            throw new RuntimeException("IOError writing file to output stream");
+        }
+
+        //Or just write below with ResponseEntity<Resource> method return type!
+        //return ResponseEntity.ok().body(resource);
+    }
+
+    @PostMapping("/uploadFile")
+    public void uploadFile(@RequestParam("file") MultipartFile file) throws IOException {
+        String fileName = fileStorageService.storeFile(file);
+        String fileDownloadUri = ServletUriComponentsBuilder.fromCurrentContextPath()
+                .path("/data/")
+                .path(fileName)
+                .toUriString();
+    }
+
     /**
      * Method for testing application properties field
      *
@@ -38,16 +102,30 @@ public class Controller {
         return welcomeMsg + " + random string -> " + randomString;
     }
 
-//    @CrossOrigin(origins = "http://localhost:4200", allowedHeaders = "*")
-//    @Secured("ROLE_USER")
-    @GetMapping()
-    public ResponseEntity<List<Customer>> getCustomers() {
+    /**
+     * @param spec this is object of Specification interface for suitable filter search with
+     *             params
+     * @return customers with specified filter on it
+     */
+    @CrossOrigin(value = "*", allowedHeaders = "*")
+    //@Secured("ROLE_USER")
+    @Transactional
+    @GetMapping(value = "", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<Customer>> getCustomers(
+            @And({
+                    @Spec(path = "id", params = "id", spec = EqualIgnoreCase.class),
+                    @Spec(path = "firstName", params = "firstName", spec = LikeIgnoreCase.class),
+                    @Spec(path = "lastName", params = "lastName", spec = LikeIgnoreCase.class),
+                    @Spec(path = "email", params = "email", spec = LikeIgnoreCase.class),
+                    @Spec(path = "phone", params = "phone", spec = LikeIgnoreCase.class),
+            }) Specification<Customer> spec) {
 
-        List<Customer> customers = customerService.getCustomer();
+        List<Customer> customers = customerService.getCustomer(spec);
         return new ResponseEntity<>(customers, HttpStatus.OK);
     }
 
-    @Secured("ROLE_ADMIN")
+    @CrossOrigin(value = "*", allowedHeaders = "*")
+    //@Secured("ROLE_ADMIN")
     @GetMapping(value = "/id/{id}")
     public ResponseEntity<Optional<Customer>> getCustomerById(@PathVariable(value = "id") long id) {
 

@@ -12,6 +12,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @Configuration
 @EnableGlobalMethodSecurity(securedEnabled = true)
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
+
     @Override
     public void configure(final AuthenticationManagerBuilder auth) throws Exception {
 
@@ -35,11 +36,15 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     public void configure(HttpSecurity http) throws Exception {
         http
                 .authorizeRequests()
+                .antMatchers("/customers").hasAnyRole("ADMIN", "USER")
+                .antMatchers("/swagger**/**").hasAnyRole("ADMIN", "USER")
                 .antMatchers("/customers/welcome").permitAll()
                 .antMatchers("/h2/**").hasAnyRole("ADMIN", "USER")
                 .antMatchers("/login*").permitAll()
                 .and()
-                .formLogin();
+                .formLogin()
+                .and()
+                .logout();
 
         //This is for h2 configurations
         http.csrf().disable();
