@@ -1,14 +1,13 @@
 package com.salman.salapp.library.entity;
 
 import javax.validation.constraints.NotNull;
-import lombok.Getter;
-import lombok.Setter;
+
+import lombok.*;
 
 import javax.persistence.*;
 
 @Entity
-@Setter
-@Getter
+@Data
 @Table(name = "CUSTOMERS")
 public class Customer {
 
